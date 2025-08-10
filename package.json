@@ -1,0 +1,22 @@
+{
+  "name": "paintshop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "capture-evidence": "node scripts/capture-evidence.js",
+    "git:autopush": "git diff --quiet || (git add . && git commit -m 'bot: pushing changes onto git' && git push)",
+    "analyze-ui": "yarn dev & sleep 3 && yarn capture-evidence && kill %1"
+  },
+  "dependencies": {
+    "preact": "^10.19.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.8.1",
+    "puppeteer": "^24.16.0",
+    "vite": "^5.0.8"
+  }
+}

@@ -1,0 +1,43 @@
+.paint-canvas {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-container {
+  flex: 1;
+  display: block;
+  padding: 2rem;
+  overflow: auto;
+  background: #ffffff;
+  border: 2px inset #e9ecef;
+  margin: 1rem;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.canvas-wrapper {
+  display: inline-block;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.paint-canvas-element {
+  border: 1px solid #adb5bd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: crosshair;
+  background: white;
+  display: block;
+}
+
+.paint-canvas-element:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .canvas-container {
+    margin: 0.5rem;
+    padding: 0.5rem;
+  }
+}
