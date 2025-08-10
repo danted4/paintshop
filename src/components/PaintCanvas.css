@@ -9,7 +9,9 @@
   flex: 1;
   display: block;
   padding: 2rem;
-  overflow: auto;
+  overflow: auto !important;
+  min-width: 0;
+  min-height: 0;
   background: #ffffff;
   border: 2px inset #e9ecef;
   margin: 1rem;
@@ -19,8 +21,9 @@
 
 .canvas-wrapper {
   display: inline-block;
-  min-width: 100%;
-  min-height: 100%;
+  /* Remove min-width/min-height so canvas can grow beyond container */
+  width: auto;
+  height: auto;
 }
 
 .paint-canvas-element {

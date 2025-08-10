@@ -1,37 +1,55 @@
 # PaintShop - Paint & Photo Editor
+# PaintShop
 
-A fully frontend web application that combines Microsoft Paint-like drawing features with Photoshop-style photo editing in a beautiful, seamless hybrid interface.
+PaintShop is a modern paint and photo editor built with Preact and Vite. It offers a fast, intuitive, and feature-rich experience for both drawing and photo editing.
 
-## Features
+## ✨ Features
 
-### 🎨 Paint Mode
-- **Drawing Tools**: Pencil, brush, eraser with adjustable sizes and colors
-- **Shapes**: Rectangle, ellipse, and line drawing tools
-- **Fill Tool**: Bucket fill with flood fill algorithm
-- **Color Picker**: Custom color selection plus 15 predefined colors
-- **Undo/Redo**: Full undo/redo support with 20-step history
+### Paint Mode
+- Draw with brush, pencil, eraser, fill, rectangle, ellipse, line, and text tools
+- Adjustable brush size and color picker
+- Undo/redo and clear canvas
+- Zoom in/out and reset zoom
+- Load images as backgrounds
+- Export your artwork as an image
 
-### 🖼️ Photo Edit Mode
-- **Filters**: Brightness, contrast, saturation, blur, and hue adjustments
-- **Transformations**: Rotate 90°/-90°, flip horizontal/vertical, scale
-- **Cropping**: Interactive crop selection with visual overlay
-- **Undo/Redo**: Separate undo/redo stack for photo edits
+### Photo Mode
+- Load and edit photos with non-destructive controls
+- Adjust brightness, contrast, saturation, blur, and hue
+- Crop images with precise selection overlay (works at all zoom levels)
+- Rotate, flip (horizontal/vertical), and scale images
+- Undo/redo for all photo edits
+- Reset filters and transformations
 
-### 🚀 Core Features
-- **Image Upload**: Drag & drop or click to upload (JPEG, PNG, GIF, WebP)
-- **Mode Toggle**: Seamless switching between Paint and Photo Edit modes
-- **Export**: Download as PNG, JPEG, or WebP with quality options
-- **Responsive Design**: Optimized for desktop and tablet devices
-- **Error Handling**: Comprehensive error handling and user feedback
-- **Performance**: Optimized canvas operations with throttling and debouncing
+### General
+- Modern, responsive UI with sidebar for quick access to tools
+- Keyboard shortcuts for common actions (new canvas, open image, help, etc.)
+- Helpful tooltips and help modal
+- Error handling and loading indicators
 
-## Technical Stack
+## 🚀 Getting Started
 
-- **Frontend Framework**: Preact 10.19.3
-- **Build Tool**: Vite 5.4.19
-- **Styling**: CSS with modern features (backdrop-filter, CSS Grid/Flexbox)
-- **Canvas API**: HTML5 Canvas for all drawing and editing operations
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open your browser to the local address shown in the terminal (usually http://localhost:5173)
 
+## 🛠️ Build
+
+To create a production build:
+
+```bash
+npm run build
+```
+
+## 📄 License
+
+MIT
 ## Getting Started
 
 1. **Install dependencies**:

@@ -1,39 +1,58 @@
-import { useState, useRef, useEffect, useCallback } from 'preact/hooks'
+import { useRef, useEffect, useCallback, useImperativeHandle } from 'preact/hooks'
+import { forwardRef } from 'preact/compat'
 import { debounce } from '../utils/performance'
 import { createErrorHandler, withErrorBoundary } from '../utils/errorHandler'
 import './PhotoEditor.css'
 
-export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { width: 800, height: 600 }, zoom = 1 }) {
+const PhotoEditor = forwardRef(({
+  image,
+  onCanvasUpdate,
+  onError,
+  canvasSize = { width: 800, height: 600 },
+  zoom = 1,
+  controls,
+  setControls,
+  onResetFilters,
+  onRotateImage,
+  onFlipImage,
+  onScale,
+  onApplyCrop,
+  onCancelCrop,
+  onUndo,
+  onRedo,
+  crop,
+  setCrop,
+  isDragging,
+  setIsDragging,
+  dragStart,
+  setDragStart,
+  rotation,
+  setRotation,
+  scale,
+  setScale,
+  undoStack,
+  setUndoStack,
+  redoStack,
+  setRedoStack
+}, ref) => {
+  // Expose imperative methods for App to call
+  useImperativeHandle(ref, () => ({
+    flipImage,
+    applyCrop,
+    undo,
+    redo
+  }))
   const canvasRef = useRef()
   const originalImageRef = useRef()
-  const [filters, setFilters] = useState({
-    brightness: 100,
-    contrast: 100,
-    saturation: 100,
-    blur: 0,
-    hue: 0
-  })
+  // All state is now lifted to App and passed as props
   
   const errorHandler = createErrorHandler(onError)
-  const [crop, setCrop] = useState({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    active: false
-  })
-  const [rotation, setRotation] = useState(0)
-  const [scale, setScale] = useState(1)
-  const [undoStack, setUndoStack] = useState([])
-  const [redoStack, setRedoStack] = useState([])
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  // ...existing code...
 
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
       const ctx = canvas.getContext('2d')
-      
       if (image) {
         canvas.width = image.width
         canvas.height = image.height
@@ -48,7 +67,6 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         originalImageRef.current = null
       }
-      
       saveCanvasState()
     }
   }, [image, canvasSize])
@@ -61,12 +79,12 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
         errorHandler(error, 'Filter Application')
       }
     }, 100),
-    [filters, rotation, scale]
+    [controls, rotation, scale]
   )
 
   useEffect(() => {
     debouncedApplyFilters()
-  }, [filters, rotation, scale, debouncedApplyFilters])
+  }, [controls, rotation, scale, debouncedApplyFilters])
 
   const saveCanvasState = () => {
     const canvas = canvasRef.current
@@ -108,11 +126,11 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
     
     // Apply filters
     const filterString = [
-      `brightness(${filters.brightness}%)`,
-      `contrast(${filters.contrast}%)`,
-      `saturate(${filters.saturation}%)`,
-      `blur(${filters.blur}px)`,
-      `hue-rotate(${filters.hue}deg)`
+      `brightness(${controls.brightness}%)`,
+      `contrast(${controls.contrast}%)`,
+      `saturate(${controls.saturation}%)`,
+      `blur(${controls.blur}px)`,
+      `hue-rotate(${controls.hue}deg)`
     ].join(' ')
     
     ctx.filter = filterString
@@ -122,62 +140,50 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
     ctx.filter = 'none'
   }
 
-  const resetFilters = () => {
-    setFilters({
-      brightness: 100,
-      contrast: 100,
-      saturation: 100,
-      blur: 0,
-      hue: 0
-    })
-    setRotation(0)
-    setScale(1)
-  }
 
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterName]: value
-    }))
-  }
-
-  const rotateImage = (degrees) => {
-    setRotation(prev => (prev + degrees) % 360)
-  }
+  // Crop handlers for canvas events
+  const handleStartCrop = (e) => startCrop(e)
+  const handleUpdateCrop = (e) => updateCrop(e)
+  const handleFinishCrop = () => finishCrop()
 
   const flipImage = (direction) => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
-    
-    ctx.save()
-    
+    if (!originalImageRef.current) return
+
+    // Create a temp canvas to flip the original image only
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = canvas.width
+    tempCanvas.height = canvas.height
+    const tempCtx = tempCanvas.getContext('2d')
+
+    tempCtx.save()
     if (direction === 'horizontal') {
-      ctx.scale(-1, 1)
-      ctx.drawImage(canvas, -canvas.width, 0)
+      tempCtx.translate(tempCanvas.width, 0)
+      tempCtx.scale(-1, 1)
     } else {
-      ctx.scale(1, -1)
-      ctx.drawImage(canvas, 0, -canvas.height)
+      tempCtx.translate(0, tempCanvas.height)
+      tempCtx.scale(1, -1)
     }
-    
-    ctx.restore()
-    
+    tempCtx.drawImage(originalImageRef.current, 0, 0)
+    tempCtx.restore()
+
     // Update original image reference with flipped result
-    const flippedImage = new Image()
+    const flippedImage = new window.Image()
     flippedImage.onload = () => {
       originalImageRef.current = flippedImage
       applyFilters()
       saveCanvasState()
     }
-    flippedImage.src = canvas.toDataURL()
+    flippedImage.src = tempCanvas.toDataURL()
   }
 
   const startCrop = (e) => {
     const canvas = canvasRef.current
     const rect = canvas.getBoundingClientRect()
-    
+    // Use unscaled mouse position relative to canvas
     const x = (e.clientX - rect.left) / zoom
     const y = (e.clientY - rect.top) / zoom
-    
     setIsDragging(true)
     setDragStart({ x, y })
     setCrop({
@@ -191,13 +197,10 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
 
   const updateCrop = (e) => {
     if (!isDragging) return
-    
     const canvas = canvasRef.current
     const rect = canvas.getBoundingClientRect()
-    
     const currentX = (e.clientX - rect.left) / zoom
     const currentY = (e.clientY - rect.top) / zoom
-    
     setCrop(prev => ({
       ...prev,
       width: currentX - dragStart.x,
@@ -291,7 +294,7 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
       img.src = stateToRestore
     }
   }
-
+// Only render canvas and notification
   return (
     <div className="photo-editor">
       {!image && (
@@ -299,34 +302,90 @@ export function PhotoEditor({ image, onCanvasUpdate, onError, canvasSize = { wid
           <p>📷 Load an image to use photo editing features</p>
         </div>
       )}
-      <div className="canvas-container">
-        <div className="canvas-wrapper">
-          <canvas
-            ref={canvasRef}
-            onMouseDown={startCrop}
-            onMouseMove={updateCrop}
-            onMouseUp={finishCrop}
-            className="photo-canvas"
+      {image && (
+        <div className="canvas-container">
+          <div
+            className="canvas-wrapper"
             style={{
               transform: `scale(${zoom})`,
               transformOrigin: 'top left'
             }}
-          />
-          {crop.active && (
-            <div
-              className="crop-overlay"
-              style={{
-                left: `${Math.min(crop.x, crop.x + crop.width) * zoom}px`,
-                top: `${Math.min(crop.y, crop.y + crop.height) * zoom}px`,
-                width: `${Math.abs(crop.width) * zoom}px`,
-                height: `${Math.abs(crop.height) * zoom}px`,
-                transform: `scale(1)`,
-                transformOrigin: 'top left'
-              }}
+          >
+            <canvas
+              ref={canvasRef}
+              onMouseDown={handleStartCrop}
+              onMouseMove={handleUpdateCrop}
+              onMouseUp={handleFinishCrop}
+              className="photo-canvas"
             />
-          )}
+            {crop.active && (
+              <div
+                className="crop-overlay"
+                style={{
+                  left: `${Math.min(crop.x, crop.x + crop.width)}px`,
+                  top: `${Math.min(crop.y, crop.y + crop.height)}px`,
+                  width: `${Math.abs(crop.width)}px`,
+                  height: `${Math.abs(crop.height)}px`
+                }}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
-}
+})
+
+// Controls subcomponent for sidebar
+const PhotoControls = ({
+  controls,
+  setControls,
+  onResetFilters,
+  onRotateImage,
+  onFlipImage,
+  onScale,
+  onApplyCrop,
+  onCancelCrop,
+  onUndo,
+  onRedo,
+  crop
+}) => (
+  <div className="photo-controls-panel sidebar-photo-controls">
+    <div className="filter-controls">
+      <label>Brightness
+        <input type="range" min="0" max="200" value={controls.brightness} onInput={e => setControls(c => ({ ...c, brightness: parseInt(e.target.value) }))} />
+      </label>
+      <label>Contrast
+        <input type="range" min="0" max="200" value={controls.contrast} onInput={e => setControls(c => ({ ...c, contrast: parseInt(e.target.value) }))} />
+      </label>
+      <label>Saturation
+        <input type="range" min="0" max="200" value={controls.saturation} onInput={e => setControls(c => ({ ...c, saturation: parseInt(e.target.value) }))} />
+      </label>
+      <label>Blur
+        <input type="range" min="0" max="20" value={controls.blur} onInput={e => setControls(c => ({ ...c, blur: parseInt(e.target.value) }))} />
+      </label>
+      <label>Hue
+        <input type="range" min="-180" max="180" value={controls.hue} onInput={e => setControls(c => ({ ...c, hue: parseInt(e.target.value) }))} />
+      </label>
+      <button onClick={() => setControls({ brightness: 100, contrast: 100, saturation: 100, blur: 0, hue: 0 })}>Reset Filters</button>
+    </div>
+    <div className="transform-controls">
+      <button onClick={() => onRotateImage(90)}>Rotate +90°</button>
+      <button onClick={() => onRotateImage(-90)}>Rotate -90°</button>
+      <button onClick={() => onFlipImage('horizontal')}>Flip Horizontal</button>
+      <button onClick={() => onFlipImage('vertical')}>Flip Vertical</button>
+      <button onClick={() => onScale('out')}>Scale -</button>
+      <button onClick={() => onScale('in')}>Scale +</button>
+    </div>
+    <div className="crop-controls">
+      <button onClick={onApplyCrop} disabled={!crop.active}>Apply Crop</button>
+      <button onClick={onCancelCrop} disabled={!crop.active}>Cancel Crop</button>
+    </div>
+    <div className="history-controls">
+      <button onClick={onUndo}>Undo</button>
+      <button onClick={onRedo}>Redo</button>
+    </div>
+  </div>
+)
+
+export { PhotoEditor, PhotoControls }

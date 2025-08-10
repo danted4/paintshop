@@ -4,7 +4,9 @@ import { throttle, createOptimizedCanvas } from '../utils/performance'
 import { createErrorHandler, withErrorBoundary } from '../utils/errorHandler'
 import './PaintCanvas.css'
 
-export function PaintCanvas({ 
+import { forwardRef, useImperativeHandle } from 'preact/compat'
+
+export const PaintCanvas = forwardRef(function PaintCanvas({ 
   image, 
   onCanvasUpdate, 
   onError, 
@@ -14,7 +16,12 @@ export function PaintCanvas({
   color = '#000000',
   zoom = 1,
   onUndoRedoUpdate
-}) {
+}, ref) {
+  useImperativeHandle(ref, () => ({
+    undo,
+    redo,
+    clearCanvas
+  }))
   const canvasRef = useRef()
   const [isDrawing, setIsDrawing] = useState(false)
   const [undoStack, setUndoStack] = useState([])
@@ -69,45 +76,46 @@ export function PaintCanvas({
     }
   }
 
-  const undo = () => {
-    if (undoStack.length > 1) {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
-      
-      const currentState = undoStack[undoStack.length - 1]
-      const previousState = undoStack[undoStack.length - 2]
-      
-      setRedoStack(prev => [...prev, currentState])
-      setUndoStack(prev => prev.slice(0, -1))
-      
-      const img = new Image()
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0)
-        onCanvasUpdate?.(canvas)
-      }
-      img.src = previousState
+const undo = () => {
+  if (undoStack.length > 1) {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const currentState = undoStack[undoStack.length - 1]
+    const previousState = undoStack[undoStack.length - 2]
+    const newRedoStack = [...redoStack, currentState]
+    const newUndoStack = undoStack.slice(0, -1)
+    setRedoStack(newRedoStack)
+    setUndoStack(newUndoStack)
+    onUndoRedoUpdate?.(newUndoStack, newRedoStack)
+    const img = new window.Image()
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      onCanvasUpdate?.(canvas)
     }
+    img.src = previousState
   }
+}
 
-  const redo = () => {
-    if (redoStack.length > 0) {
-      const canvas = canvasRef.current
-      const ctx = canvas.getContext('2d')
-      
-      const stateToRestore = redoStack[redoStack.length - 1]
-      setUndoStack(prev => [...prev, stateToRestore])
-      setRedoStack(prev => prev.slice(0, -1))
-      
-      const img = new Image()
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0)
-        onCanvasUpdate?.(canvas)
-      }
-      img.src = stateToRestore
+const redo = () => {
+  if (redoStack.length > 0) {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const stateToRestore = redoStack[redoStack.length - 1]
+    const newUndoStack = [...undoStack, stateToRestore]
+    const newRedoStack = redoStack.slice(0, -1)
+    setUndoStack(newUndoStack)
+    setRedoStack(newRedoStack)
+    onUndoRedoUpdate?.(newUndoStack, newRedoStack)
+    const img = new window.Image()
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      onCanvasUpdate?.(canvas)
     }
+    img.src = stateToRestore
   }
+}
 
   const getMousePos = (e) => {
     const canvas = canvasRef.current
@@ -302,4 +310,4 @@ export function PaintCanvas({
       </div>
     </div>
   )
-}
+})

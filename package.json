@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "yarn build && vite preview",
     "capture-evidence": "node scripts/capture-evidence.js",
     "git:autopush": "git diff --quiet || (git add . && git commit -m 'bot: pushing changes onto git' && git push)",
-    "analyze-ui": "yarn dev & sleep 3 && yarn capture-evidence && kill %1"
+    "analyze-ui": "rm -rf evidence/* && yarn dev & sleep 3 && yarn capture-evidence && kill %1"
   },
   "dependencies": {
     "preact": "^10.19.3"

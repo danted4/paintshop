@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'preact/hooks'
+import { useState, useEffect, useRef } from 'preact/hooks'
 import { ImageUpload } from './components/ImageUpload'
 import { PaintCanvas } from './components/PaintCanvas'
-import { PhotoEditor } from './components/PhotoEditor'
+import { PhotoEditor, PhotoControls } from './components/PhotoEditor'
 import { ModeToggle } from './components/ModeToggle'
 import { ExportButton } from './components/ExportButton'
 import { CanvasSettings } from './components/CanvasSettings'
@@ -10,6 +10,7 @@ import { PaintToolsSidebar } from './components/PaintToolsSidebar'
 import './app.css'
 
 export function App() {
+  const paintCanvasRef = useRef()
   const [image, setImage] = useState(null)
   const [mode, setMode] = useState('paint')
   const [currentCanvas, setCurrentCanvas] = useState(null)
@@ -28,6 +29,25 @@ export function App() {
   const [redoStack, setRedoStack] = useState([])
   const [zoom, setZoom] = useState(1)
   
+  // Photo controls state
+  const [photoControls, setPhotoControls] = useState({
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    blur: 0,
+    hue: 0
+  })
+  const [photoCrop, setPhotoCrop] = useState({
+    x: 0, y: 0, width: 0, height: 0, active: false
+  })
+  const [photoIsDragging, setPhotoIsDragging] = useState(false)
+  const [photoDragStart, setPhotoDragStart] = useState({ x: 0, y: 0 })
+  const [photoRotation, setPhotoRotation] = useState(0)
+  const [photoScale, setPhotoScale] = useState(1)
+  const [photoUndoStack, setPhotoUndoStack] = useState([])
+  const [photoRedoStack, setPhotoRedoStack] = useState([])
+  const photoEditorRef = useRef()
+
   const tools = {
     brush: 'brush',
     pencil: 'pencil',
@@ -97,6 +117,46 @@ export function App() {
 
   const handleShowCanvasSettings = () => {
     setShowCanvasSettings(true)
+  }
+
+  // Photo mode handlers
+  const handleResetFilters = () => {
+    setPhotoControls({ brightness: 100, contrast: 100, saturation: 100, blur: 0, hue: 0 })
+    setPhotoRotation(0)
+    setPhotoScale(1)
+  }
+  const handleRotateImage = deg => {
+    setPhotoRotation(prev => (prev + deg + 360) % 360)
+  }
+  const handleFlipImage = dir => {
+    if (photoEditorRef.current && photoEditorRef.current.flipImage) {
+      photoEditorRef.current.flipImage(dir)
+    }
+  }
+  const handleScale = dir => {
+    setPhotoScale(prev => {
+      if (dir === 'in') return Math.min(prev * 1.2, 5)
+      if (dir === 'out') return Math.max(prev / 1.2, 0.1)
+      return prev
+    })
+  }
+  const handleApplyCrop = () => {
+    if (photoEditorRef.current && photoEditorRef.current.applyCrop) {
+      photoEditorRef.current.applyCrop()
+    }
+  }
+  const handleCancelCrop = () => {
+    setPhotoCrop(prev => ({ ...prev, active: false }))
+  }
+  const handleUndo = () => {
+    if (photoEditorRef.current && photoEditorRef.current.undo) {
+      photoEditorRef.current.undo()
+    }
+  }
+  const handleRedo = () => {
+    if (photoEditorRef.current && photoEditorRef.current.redo) {
+      photoEditorRef.current.redo()
+    }
   }
 
   useEffect(() => {
@@ -264,9 +324,9 @@ export function App() {
                     onBrushSizeChange={setBrushSize}
                     color={color}
                     onColorChange={setColor}
-                    onUndo={() => {}}
-                    onRedo={() => {}}
-                    onClear={() => {}}
+                    onUndo={() => paintCanvasRef.current?.undo()}
+                    onRedo={() => paintCanvasRef.current?.redo()}
+                    onClear={() => paintCanvasRef.current?.clearCanvas()}
                     canUndo={undoStack.length > 1}
                     canRedo={redoStack.length > 0}
                     tools={tools}
@@ -274,12 +334,22 @@ export function App() {
                 </div>
               )}
               
-              {mode === 'photo' && image && (
+              {mode === 'photo' && (
                 <div className="sidebar-section">
-                  <h3>Photo Controls</h3>
-                  <div className="photo-controls-compact">
-                    <p>Photo editing controls will be here</p>
-                  </div>
+                  <h3>Adjustments</h3>
+                  <PhotoControls
+                    controls={photoControls}
+                    setControls={setPhotoControls}
+                    onResetFilters={handleResetFilters}
+                    onRotateImage={handleRotateImage}
+                    onFlipImage={handleFlipImage}
+                    onScale={handleScale}
+                    onApplyCrop={handleApplyCrop}
+                    onCancelCrop={handleCancelCrop}
+                    onUndo={handleUndo}
+                    onRedo={handleRedo}
+                    crop={photoCrop}
+                  />
                 </div>
               )}
             </div>
@@ -287,6 +357,7 @@ export function App() {
             <div className="editor-container">
               {mode === 'paint' ? (
                 <PaintCanvas
+                  ref={paintCanvasRef}
                   image={image}
                   onCanvasUpdate={handleCanvasUpdate}
                   onError={handleError}
@@ -300,13 +371,39 @@ export function App() {
                     setRedoStack(redo)
                   }}
                 />
-              ) : (
+              ) : null}
+              {mode === 'photo' && (
                 <PhotoEditor
+                  ref={photoEditorRef}
                   image={image}
                   onCanvasUpdate={handleCanvasUpdate}
                   onError={handleError}
                   canvasSize={canvasSize}
                   zoom={zoom}
+                  controls={photoControls}
+                  setControls={setPhotoControls}
+                  onResetFilters={handleResetFilters}
+                  onRotateImage={handleRotateImage}
+                  onFlipImage={handleFlipImage}
+                  onScale={handleScale}
+                  onApplyCrop={handleApplyCrop}
+                  onCancelCrop={handleCancelCrop}
+                  onUndo={handleUndo}
+                  onRedo={handleRedo}
+                  crop={photoCrop}
+                  setCrop={setPhotoCrop}
+                  isDragging={photoIsDragging}
+                  setIsDragging={setPhotoIsDragging}
+                  dragStart={photoDragStart}
+                  setDragStart={setPhotoDragStart}
+                  rotation={photoRotation}
+                  setRotation={setPhotoRotation}
+                  scale={photoScale}
+                  setScale={setPhotoScale}
+                  undoStack={photoUndoStack}
+                  setUndoStack={setPhotoUndoStack}
+                  redoStack={photoRedoStack}
+                  setRedoStack={setPhotoRedoStack}
                 />
               )}
             </div>
