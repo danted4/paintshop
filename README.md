@@ -1,8 +1,10 @@
 # PaintShop - Paint & Photo Editor
 # PaintShop
 
-PaintShop is a modern paint and photo editor built with Preact and Vite. It offers a fast, intuitive, and feature-rich experience for both drawing and photo editing.
-
+PaintShop is a modern paint and photo editor built with `Preact` and `Vite`. It offers a fast, intuitive, and feature-rich experience for both drawing and photo editing.
+#
+Node Version: `lts/jod`
+#
 ## ✨ Features
 
 ### Paint Mode
