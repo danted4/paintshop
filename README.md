@@ -29,13 +29,13 @@ PaintShop is a modern paint and photo editor built with Preact and Vite. It offe
 
 ## 🚀 Getting Started
 
-1. Install dependencies:
+1. Install yarn:
    ```bash
-   npm install
+   npm i -g yarn
    ```
 2. Start the development server:
    ```bash
-   npm run dev
+   yarn && yarn dev
    ```
 3. Open your browser to the local address shown in the terminal (usually http://localhost:5173)
 
