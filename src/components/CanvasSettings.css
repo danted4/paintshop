@@ -13,7 +13,7 @@
   padding: 2rem;
 }
 
-.canvas-settings > div {
+.settings-modal {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -21,7 +21,9 @@
   width: 100%;
   max-width: 600px;
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .settings-header {
@@ -30,6 +32,7 @@
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .settings-header h2 {
@@ -56,11 +59,16 @@
 
 .settings-content {
   padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
 }
 
-.presets-section,
-.custom-section {
+.presets-section {
   margin-bottom: 2rem;
+}
+
+.custom-section {
+  margin-bottom: 1rem;
 }
 
 .presets-section h3,
@@ -147,8 +155,10 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  padding-top: 1rem;
+  padding: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .cancel-btn,

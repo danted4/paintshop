@@ -29,57 +29,59 @@ export function CanvasSettings({ onCreateCanvas, onCancel, currentSize }) {
 
   return (
     <div className="canvas-settings">
-      <div className="settings-header">
-        <h2>New Canvas</h2>
-        <button className="close-btn" onClick={onCancel}>✕</button>
-      </div>
-
-      <div className="settings-content">
-        <div className="presets-section">
-          <h3>Presets</h3>
-          <div className="presets-grid">
-            {presets.map((preset, index) => (
-              <button
-                key={index}
-                className={`preset-btn ${width === preset.width && height === preset.height ? 'active' : ''}`}
-                onClick={() => handlePresetSelect(preset)}
-              >
-                {preset.name}
-              </button>
-            ))}
-          </div>
+      <div className="settings-modal">
+        <div className="settings-header">
+          <h2>New Canvas</h2>
+          <button className="close-btn" onClick={onCancel}>✕</button>
         </div>
 
-        <div className="custom-section">
-          <h3>Custom Size</h3>
-          <div className="size-inputs">
-            <div className="input-group">
-              <label>Width (px)</label>
-              <input
-                type="number"
-                min="1"
-                max="4000"
-                value={width}
-                onChange={(e) => setWidth(e.target.value)}
-              />
-            </div>
-            <div className="input-group">
-              <label>Height (px)</label>
-              <input
-                type="number"
-                min="1"
-                max="4000"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-              />
+        <div className="settings-content">
+          <div className="presets-section">
+            <h3>Presets</h3>
+            <div className="presets-grid">
+              {presets.map((preset, index) => (
+                <button
+                  key={index}
+                  className={`preset-btn ${width === preset.width && height === preset.height ? 'active' : ''}`}
+                  onClick={() => handlePresetSelect(preset)}
+                >
+                  {preset.name}
+                </button>
+              ))}
             </div>
           </div>
-          <p className="size-info">
-            Canvas size: {width} × {height} pixels
-            {(width > 2000 || height > 2000) && (
-              <span className="warning"> (Large canvas may affect performance)</span>
-            )}
-          </p>
+
+          <div className="custom-section">
+            <h3>Custom Size</h3>
+            <div className="size-inputs">
+              <div className="input-group">
+                <label>Width (px)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="4000"
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                />
+              </div>
+              <div className="input-group">
+                <label>Height (px)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="4000"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                />
+              </div>
+            </div>
+            <p className="size-info">
+              Canvas size: {width} × {height} pixels
+              {(width > 2000 || height > 2000) && (
+                <span className="warning"> (Large canvas may affect performance)</span>
+              )}
+            </p>
+          </div>
         </div>
 
         <div className="settings-actions">
