@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ CRITICAL: Git Branch Management
+
+**ALWAYS CHECKOUT TO MAIN BRANCH FIRST** before starting any work:
+
+```bash
+git checkout main
+```
+
+**Why this is essential:**
+- The user publishes from `gh-pages` branch on a separate terminal
+- During conversations, the active branch may change automatically 
+- Working on the wrong branch will cause file access errors and confusion
+- **MUST verify you are on `main` branch** before reading files or making changes
+
+**When to checkout to main:**
+- At the start of every conversation
+- If you encounter "File does not exist" errors
+- Before reading CLAUDE.md or any project files
+- If git commands suggest you're on a different branch
+
 ## Project Overview
 
 PaintShop is a modern, responsive paint and photo editor built with **Preact** and **Vite**. It's a feature-rich single-page application that provides:
