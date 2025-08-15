@@ -72,6 +72,12 @@
   font-weight: 600;
 }
 
+/* Dark mode styles for labels */
+:root.dark .filter-controls label,
+:root.dark .transform-controls label {
+  color: var(--text-primary);
+}
+
 .filter-controls input[type="range"],
 .transform-controls input[type="range"] {
   width: 100%;
@@ -93,6 +99,20 @@
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
   border: 2px solid #fff;
+}
+
+/* Dark mode styles for range sliders */
+:root.dark .filter-controls input[type="range"],
+:root.dark .transform-controls input[type="range"] {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .filter-controls input[type="range"]::-webkit-slider-thumb,
+:root.dark .transform-controls input[type="range"]::-webkit-slider-thumb {
+  background: var(--accent-color);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .photo-controls-panel button,
 .filter-controls button,
@@ -119,6 +139,26 @@
 .history-controls button:hover:not(:disabled) {
   background: #d0e7ff;
   color: #0077cc;
+}
+
+/* Dark mode styles for buttons */
+:root.dark .photo-controls-panel button,
+:root.dark .filter-controls button,
+:root.dark .transform-controls button,
+:root.dark .crop-controls button,
+:root.dark .history-controls button {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root.dark .photo-controls-panel button:hover:not(:disabled),
+:root.dark .filter-controls button:hover:not(:disabled),
+:root.dark .transform-controls button:hover:not(:disabled),
+:root.dark .crop-controls button:hover:not(:disabled),
+:root.dark .history-controls button:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--accent-color);
 }
 
 .control-btn {
