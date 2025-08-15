@@ -8,6 +8,7 @@ import { CanvasSettings } from './components/CanvasSettings'
 import { HelpModal } from './components/HelpModal'
 import { PaintToolsSidebar } from './components/PaintToolsSidebar'
 import { ThemeToggle } from './components/ThemeToggle'
+import { HamburgerMenu } from './components/HamburgerMenu'
 import './app.css'
 
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
   const [showHelp, setShowHelp] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 })
   const [isLoading, setIsLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   
   // Paint tool states
   const [tool, setTool] = useState('brush')
@@ -120,6 +122,10 @@ export function App() {
     setShowCanvasSettings(true)
   }
 
+  const toggleSidebar = () => {
+    setSidebarOpen(prev => !prev)
+  }
+
   // Photo mode handlers
   const handleResetFilters = () => {
     setPhotoControls({ brightness: 100, contrast: 100, saturation: 100, blur: 0, hue: 0 })
@@ -180,7 +186,9 @@ export function App() {
       }
       
       if (e.key === 'Escape') {
-        if (showImageUpload) {
+        if (sidebarOpen) {
+          setSidebarOpen(false)
+        } else if (showImageUpload) {
           setShowImageUpload(false)
         } else if (showCanvasSettings) {
           setShowCanvasSettings(false)
@@ -192,10 +200,24 @@ export function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showImageUpload, showCanvasSettings, showHelp])
+  }, [sidebarOpen, showImageUpload, showCanvasSettings, showHelp])
+
+  // Block scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (sidebarOpen && window.innerWidth <= 1024) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [sidebarOpen])
 
   return (
-    <div className="app">
+    <div className={`app ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <HamburgerMenu isOpen={sidebarOpen} onToggle={toggleSidebar} />
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
@@ -245,7 +267,27 @@ export function App() {
           </div>
         ) : (
           <div className="editor-screen">
-            <div className="editor-sidebar">
+            <div className={`editor-sidebar ${sidebarOpen ? 'open' : ''}`}>
+              <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>
+              <div className="sidebar-content">
+              <div className="sidebar-section mobile-top-controls">
+                <div className="mobile-controls-grid">
+                  <div className="theme-toggle-mobile">
+                    <ThemeToggle mobileMode={true} />
+                  </div>
+                  <button 
+                    className="icon-btn mobile-icon-btn"
+                    onClick={() => setShowHelp(true)}
+                    title="Help & Shortcuts"
+                  >
+                    ❓
+                  </button>
+                  <div className="mobile-export-wrapper">
+                    <ExportButton canvas={currentCanvas} />
+                  </div>
+                </div>
+              </div>
+              
               <div className="sidebar-section">
                 <h3>Mode</h3>
                 <div className="mode-toggle-compact">
@@ -354,6 +396,7 @@ export function App() {
                   />
                 </div>
               )}
+              </div>
             </div>
             
             <div className="editor-container">
