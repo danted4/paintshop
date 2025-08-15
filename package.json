@@ -1,8 +1,30 @@
 {
   "name": "paintshop",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A modern paint and photo editor built with Preact and Vite. Features dual-mode editing, dark theme support, and comprehensive drawing/photo editing tools.",
   "type": "module",
+  "private": true,
+  "keywords": [
+    "paint",
+    "photo-editor",
+    "drawing",
+    "canvas",
+    "preact",
+    "vite",
+    "image-editing",
+    "dark-mode",
+    "web-app"
+  ],
+  "author": "PaintShop Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danted4/paintshop.git"
+  },
+  "homepage": "https://github.com/danted4/paintshop#readme",
+  "bugs": {
+    "url": "https://github.com/danted4/paintshop/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
