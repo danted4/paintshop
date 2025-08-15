@@ -28,6 +28,9 @@ export const PaintCanvas = forwardRef(function PaintCanvas({
   const [redoStack, setRedoStack] = useState([])
   const [startPos, setStartPos] = useState(null)
   const [tempCanvas, setTempCanvas] = useState(null)
+  const [isAddingText, setIsAddingText] = useState(false)
+  const [textInput, setTextInput] = useState('')
+  const [textPosition, setTextPosition] = useState(null)
 
   const errorHandler = createErrorHandler(onError)
 
@@ -171,6 +174,11 @@ const redo = () => {
   }
 
   const startDrawing = (e) => {
+    // Don't start drawing if we're currently adding text
+    if (isAddingText) {
+      return
+    }
+    
     const pos = getMousePos(e)
     setIsDrawing(true)
     setStartPos(pos)
@@ -189,6 +197,13 @@ const redo = () => {
       
       floodFill(ctx, pos.x, pos.y, color, targetColor)
       saveCanvasState()
+      setIsDrawing(false)
+      return
+    }
+    
+    if (tool === 'text') {
+      setTextPosition(pos)
+      setIsAddingText(true)
       setIsDrawing(false)
       return
     }
@@ -290,6 +305,31 @@ const redo = () => {
     saveCanvasState()
   }
 
+  const addText = (text) => {
+    if (!text.trim() || !textPosition) return
+    
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.fillStyle = color
+    ctx.font = `${brushSize * 4}px Arial, sans-serif`
+    ctx.textBaseline = 'top'
+    
+    ctx.fillText(text, textPosition.x, textPosition.y)
+    
+    setIsAddingText(false)
+    setTextInput('')
+    setTextPosition(null)
+    saveCanvasState()
+  }
+
+  const cancelText = () => {
+    setIsAddingText(false)
+    setTextInput('')
+    setTextPosition(null)
+  }
+
   return (
     <div className="paint-canvas">
       <div className="canvas-container">
@@ -306,6 +346,53 @@ const redo = () => {
               transformOrigin: 'top left'
             }}
           />
+          {isAddingText && (
+            <div 
+              className="text-input-overlay"
+              style={{
+                position: 'absolute',
+                left: `${textPosition.x * zoom}px`,
+                top: `${textPosition.y * zoom}px`,
+                transform: `scale(${zoom})`,
+                transformOrigin: 'top left'
+              }}
+            >
+              <input
+                type="text"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addText(textInput)
+                  } else if (e.key === 'Escape') {
+                    cancelText()
+                  }
+                }}
+                onBlur={() => {
+                  // Small delay to prevent canvas click from interfering
+                  setTimeout(() => {
+                    if (textInput.trim()) {
+                      addText(textInput)
+                    } else {
+                      cancelText()
+                    }
+                  }, 10)
+                }}
+                autoFocus
+                placeholder="Type your text..."
+                style={{
+                  fontSize: `${brushSize * 4}px`,
+                  color: color,
+                  background: 'transparent',
+                  border: '2px dashed #999',
+                  outline: 'none',
+                  padding: '2px',
+                  fontFamily: 'Arial, sans-serif',
+                  minWidth: '100px'
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
