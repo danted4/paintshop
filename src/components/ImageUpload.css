@@ -6,22 +6,22 @@
 
 
 .upload-area {
-  border: 2.5px solid rgba(255, 255, 255, 0.25);
+  border: 2.5px solid var(--border-color);
   border-radius: 18px;
   padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18), 0 1.5px 6px 0 rgba(0,0,0,0.08);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(18px) saturate(180%);
   position: relative;
   overflow: hidden;
 }
 
 .upload-area:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-hover);
+  background: var(--bg-hover);
   transform: translateY(-2px);
 }
 
@@ -36,9 +36,9 @@
 }
 
 .upload-content {
-  color: #1a1a1a;
-  text-shadow: 0 1px 4px rgba(255,255,255,0.8), 0 0 2px #fff;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .upload-icon {
@@ -50,25 +50,40 @@
 .upload-content h3 {
   font-size: 1.6rem;
   margin-bottom: 0.5rem;
-  font-weight: 700;
-  color: #111;
-  text-shadow: 0 2px 8px rgba(255,255,255,0.9), 0 0 2px #fff;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .upload-content p {
   font-size: 1rem;
-  opacity: 0.95;
   margin-bottom: 0.5rem;
-  color: #222;
-  text-shadow: 0 1px 6px rgba(255,255,255,0.8), 0 0 2px #fff;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .supported-formats {
   font-size: 0.95rem !important;
-  opacity: 0.8 !important;
   margin-top: 1rem !important;
-  color: #0077cc;
+  color: var(--accent-color);
   font-weight: 500;
+  opacity: 0.9 !important;
+}
+
+/* Dark mode subtle styling for upload texts */
+:root.dark .upload-content h3 {
+  color: var(--text-primary);
+  opacity: 0.9;
+}
+
+:root.dark .upload-content p {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+:root.dark .supported-formats {
+  color: var(--accent-color);
+  opacity: 0.7 !important;
 }
 
 .loading-indicator {

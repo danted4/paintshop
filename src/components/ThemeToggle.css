@@ -1,0 +1,59 @@
+.theme-toggle {
+  position: relative;
+  display: inline-block;
+}
+
+.theme-select {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.theme-select:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.theme-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-color-alpha);
+}
+
+.theme-toggle .tooltip {
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid var(--tooltip-border);
+}
+
+.theme-toggle:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .theme-select {
+    min-width: 100px;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}

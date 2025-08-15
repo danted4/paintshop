@@ -7,6 +7,7 @@ import { ExportButton } from './components/ExportButton'
 import { CanvasSettings } from './components/CanvasSettings'
 import { HelpModal } from './components/HelpModal'
 import { PaintToolsSidebar } from './components/PaintToolsSidebar'
+import { ThemeToggle } from './components/ThemeToggle'
 import './app.css'
 
 export function App() {
@@ -205,6 +206,7 @@ export function App() {
             </div>
           </div>
           <div className="header-right">
+            <ThemeToggle />
             <button 
               className="icon-btn"
               onClick={() => setShowHelp(true)}
