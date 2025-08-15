@@ -24,6 +24,11 @@
   margin: 0;
 }
 
+/* Dark mode styles for control labels */
+:root.dark .control-label {
+  color: var(--text-primary);
+}
+
 .tool-btn {
   width: 100%;
   height: 40px;
@@ -160,4 +165,47 @@
 .clear-btn:hover:not(:disabled) {
   border-color: #dc3545;
   color: #dc3545;
+}
+
+/* Dark mode styles for all paint mode controls */
+:root.dark .tool-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root.dark .tool-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+:root.dark .tool-btn.active {
+  background: var(--accent-color);
+  color: var(--bg-primary);
+  border-color: var(--accent-color);
+}
+
+:root.dark .size-slider {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+:root.dark .size-slider::-webkit-slider-thumb {
+  background: var(--accent-color);
+  border-color: var(--bg-primary);
+}
+
+:root.dark .color-picker {
+  border-color: var(--border-color);
+}
+
+:root.dark .action-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root.dark .action-btn:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-color);
 }
